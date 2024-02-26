@@ -14,7 +14,7 @@ from dataset_tools.templates import (
 # * Before uploading to instance #
 ##################################
 PROJECT_NAME: str = "Doors"
-PROJECT_NAME_FULL: str = "Doors: Dataset for Boulders Segmentation"
+PROJECT_NAME_FULL: str = "DOORS: Dataset fOr bOuldeRs Segmentation"
 HIDE_DATASET = True  # set False when 100% sure about repo quality
 
 ##################################
@@ -22,7 +22,7 @@ HIDE_DATASET = True  # set False when 100% sure about repo quality
 ##################################
 LICENSE: License = License.CC_BY_4_0()
 APPLICATIONS: List[Union[Industry, Domain, Research]] = [Research.Space(), Industry.Safety()]
-CATEGORY: Category = Category.Science()
+CATEGORY: Category = Category.Science(extra=Category.Safety())
 
 CV_TASKS: List[CVTask] = [CVTask.SemanticSegmentation(), CVTask.ObjectDetection()]
 ANNOTATION_TYPES: List[AnnotationType] = [AnnotationType.SemanticSegmentation()]
@@ -34,7 +34,7 @@ if RELEASE_DATE is None:
 HOMEPAGE_URL: str = "https://zenodo.org/records/7107409#.Y20Ja-z7RhE"
 # e.g. "https://some.com/dataset/homepage"
 
-PREVIEW_IMAGE_ID: int = 14150948
+PREVIEW_IMAGE_ID: int = 14259681
 # This should be filled AFTER uploading images to instance, just ID of any image.
 
 GITHUB_URL: str = "https://github.com/dataset-ninja/doors"
@@ -74,9 +74,7 @@ SLYTAGSPLIT: Optional[Dict[str, Union[List[str], str]]] = {
         "albedo of the surface",
         "albedo of the boulder",
         "intensity of the sun",
-    ],
-    "test dataset": ["test1", "test2"],
-    "dataset": ["ds1", "ds2"],
+    ]
 }
 TAGS: Optional[List[str]] = None
 

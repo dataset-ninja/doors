@@ -81,12 +81,14 @@ def convert_and_upload_supervisely_project(
     batch_size = 30
 
     ds_name_to_splits = {
-        "train": ["T.txt"],
-        "val": ["V.txt"],
-        "test": [
-            "Te1.txt",
-            "Te2.txt",
-        ],
+        "ds1 train": "/home/alex/DATASETS/TODO/DOORS/Segmentation/DS1/DS/T.txt",
+        "ds1 val": "/home/alex/DATASETS/TODO/DOORS/Segmentation/DS1/DS/V.txt",
+        "ds1 test1": "/home/alex/DATASETS/TODO/DOORS/Segmentation/DS1/DS/Te1.txt",
+        "ds1 test2": "/home/alex/DATASETS/TODO/DOORS/Segmentation/DS1/DS/Te2.txt",
+        "ds2 train": "/home/alex/DATASETS/TODO/DOORS/Segmentation/DS2/DS/T.txt",
+        "ds2 val": "/home/alex/DATASETS/TODO/DOORS/Segmentation/DS2/DS/V.txt",
+        "ds2 test1": "/home/alex/DATASETS/TODO/DOORS/Segmentation/DS2/DS/Te1.txt",
+        "ds2 test2": "/home/alex/DATASETS/TODO/DOORS/Segmentation/DS2/DS/Te2.txt",
     }
 
     split_pathes_to_tags = {
@@ -104,7 +106,7 @@ def convert_and_upload_supervisely_project(
         labels = []
         tags = []
 
-        tags.append(ds_tag)
+        # tags.append(ds_tag)
 
         tags_data = name_to_tags_data.get(get_file_name_with_ext(image_path)).split(" ")
 
@@ -126,8 +128,8 @@ def convert_and_upload_supervisely_project(
         img_height = image_np.shape[0]
         img_wight = image_np.shape[1]
 
-        if ds_name == "test":
-            tags.append(test_tag)
+        # if ds_name == "test":
+        #     tags.append(test_tag)
 
         mask_path = image_path.replace(im_folder, mask_folder)
 
@@ -145,13 +147,13 @@ def convert_and_upload_supervisely_project(
 
     boulder = sly.ObjClass("boulder", sly.Bitmap)
 
-    ds1 = sly.TagMeta("ds1", sly.TagValueType.NONE)
-    ds2 = sly.TagMeta("ds2", sly.TagValueType.NONE)
+    # ds1 = sly.TagMeta("ds1", sly.TagValueType.NONE)
+    # ds2 = sly.TagMeta("ds2", sly.TagValueType.NONE)
 
-    test1 = sly.TagMeta("test1", sly.TagValueType.NONE)
-    test2 = sly.TagMeta("test2", sly.TagValueType.NONE)
+    # test1 = sly.TagMeta("test1", sly.TagValueType.NONE)
+    # test2 = sly.TagMeta("test2", sly.TagValueType.NONE)
 
-    name_to_test = {"Te1": test1, "Te2": test2}
+    # name_to_test = {"Te1": test1, "Te2": test2}
 
     boulder_meta = sly.TagMeta("boulder id", sly.TagValueType.ANY_NUMBER)
     scale_meta = sly.TagMeta("boulder scale", sly.TagValueType.ANY_NUMBER)
@@ -161,55 +163,47 @@ def convert_and_upload_supervisely_project(
 
     meta = sly.ProjectMeta(
         obj_classes=[boulder],
-        tag_metas=[ds1, ds2, test1, test2, boulder_meta, scale_meta, as_meta, ab_meta, sun_meta],
+        tag_metas=[boulder_meta, scale_meta, as_meta, ab_meta, sun_meta],
     )
     api.project.update_meta(project.id, meta.to_json())
 
-    for ds_name, split_path in ds_name_to_splits.items():
+    for ds_name, curr_split_path in ds_name_to_splits.items():
         dataset = api.dataset.create(project.id, ds_name, change_name_if_conflict=True)
+        # ds_meta = meta.get_tag_meta(sub_ds.lower())
+        # ds_tag = sly.Tag(ds_meta)
 
-        for sub_ds in ["DS1", "DS2"]:
-            ds_meta = meta.get_tag_meta(sub_ds.lower())
-            ds_tag = sly.Tag(ds_meta)
+        sub_ds = curr_split_path.split("/")[-3]
+        images_path = os.path.join(dataset_path, sub_ds, "DS", im_folder)
 
-            images_path = os.path.join(dataset_path, sub_ds, "DS", im_folder)
+        with open(curr_split_path) as f:
+            content = f.read().split("\n")
 
-            for curr_split_name in split_path:
-                if ds_name == "test":
-                    test_meta = name_to_test[get_file_name(curr_split_name)]
-                    test_tag = sly.Tag(test_meta)
+        images_names = [im_name.rstrip() for im_name in content if len(im_name) > 0]
 
-                curr_split_path = os.path.join(dataset_path, sub_ds, "DS", curr_split_name)
+        tags_path = split_pathes_to_tags[curr_split_path]
 
-                with open(curr_split_path) as f:
-                    content = f.read().split("\n")
+        name_to_tags_data = {}
+        with open(tags_path) as f:
+            content = f.read().split("\n")
 
-                images_names = [im_name.rstrip() for im_name in content if len(im_name) > 0]
+        for idx in range(len(images_names)):
+            name_to_tags_data[images_names[idx]] = content[idx].rstrip()
 
-                tags_path = split_pathes_to_tags[curr_split_path]
+        progress = sly.Progress("Create dataset {}".format(ds_name), len(images_names))
 
-                name_to_tags_data = {}
-                with open(tags_path) as f:
-                    content = f.read().split("\n")
+        for images_names_batch in sly.batched(images_names, batch_size=batch_size):
+            new_im_names = []
+            img_pathes_batch = []
+            for im_name in images_names_batch:
+                img_pathes_batch.append(os.path.join(images_path, im_name))
+                new_im_names.append(sub_ds + "_" + im_name)
 
-                for idx in range(len(images_names)):
-                    name_to_tags_data[images_names[idx]] = content[idx].rstrip()
+            img_infos = api.image.upload_paths(dataset.id, new_im_names, img_pathes_batch)
+            img_ids = [im_info.id for im_info in img_infos]
 
-                progress = sly.Progress("Create dataset {}".format(ds_name), len(images_names))
+            anns = [create_ann(image_path) for image_path in img_pathes_batch]
+            api.annotation.upload_anns(img_ids, anns)
 
-                for images_names_batch in sly.batched(images_names, batch_size=batch_size):
-                    new_im_names = []
-                    img_pathes_batch = []
-                    for im_name in images_names_batch:
-                        img_pathes_batch.append(os.path.join(images_path, im_name))
-                        new_im_names.append(sub_ds + "_" + im_name)
-
-                    img_infos = api.image.upload_paths(dataset.id, new_im_names, img_pathes_batch)
-                    img_ids = [im_info.id for im_info in img_infos]
-
-                    anns = [create_ann(image_path) for image_path in img_pathes_batch]
-                    api.annotation.upload_anns(img_ids, anns)
-
-                    progress.iters_done_report(len(images_names_batch))
+            progress.iters_done_report(len(images_names_batch))
 
     return project
