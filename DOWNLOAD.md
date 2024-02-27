@@ -1,6 +1,6 @@
 Dataset **Doors** can be downloaded in [Supervisely format](https://developer.supervisely.com/api-references/supervisely-annotation-json-format):
 
- [Download](Set 'HIDE_DATASET=False' to generate download link)
+ [Download](https://assets.supervisely.com/supervisely-supervisely-assets-public/teams_storage/3/c/C5/eADrsgZhlCAxn7xk8pV4RKsh43kM1SSu9Q4iQSqMdLlWJOpEbrWc5WPF677EKjKPjYZxIEGlUCnHFe5faewXkeU16WTDyVa8C08kYZ3fNPwzymDANqO8qx1WA85l.tar)
 
 As an alternative, it can be downloaded with *dataset-tools* package:
 ``` bash
