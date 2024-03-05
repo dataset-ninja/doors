@@ -76,7 +76,7 @@ SLYTAGSPLIT: Optional[Dict[str, Union[List[str], str]]] = {
         "intensity of the sun",
     ]
 }
-TAGS: Optional[List[str]] = None
+TAGS: Optional[List[str]] = ['synthetic']
 
 
 SECTION_EXPLORE_CUSTOM_DATASETS: Optional[List[str]] = None
