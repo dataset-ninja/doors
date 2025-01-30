@@ -1,6 +1,6 @@
 Dataset **DOORS** can be downloaded in [Supervisely format](https://developer.supervisely.com/api-references/supervisely-annotation-json-format):
 
- [Download](https://www.dropbox.com/scl/fi/es6d81k11unlf73wh2jr9/doors-DatasetNinja.tar?rlkey=leklk0m1lxel4itvhbw99vqp5&dl=1)
+ [Download](https://assets.supervisely.com/remote/eyJsaW5rIjogImZzOi8vYXNzZXRzLzM1NjNfRG9vcnMvZG9vcnMtRGF0YXNldE5pbmphLnRhciIsICJzaWciOiAiWlVid3lCTDhQa3dsTlZZMHA4ODdXLzNZK2hZUUgzc1A1VXRLd0tXemNjcz0ifQ==)
 
 As an alternative, it can be downloaded with *dataset-tools* package:
 ``` bash
